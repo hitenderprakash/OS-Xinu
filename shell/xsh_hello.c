@@ -4,9 +4,9 @@
 #include <string.h>
 #include <stdio.h>
 
-/*-----------------------------------------------------------------------------------------
- * xsh_hello - hello command simply work like echo and prints the input string on console in a formatted welcome message
- *-----------------------------------------------------------------------------------------
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ * xsh_hello - hello command simply work like echo and prints the input string on console in a welcome message
+ *----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  */
 shellcmd xsh_hello(int nargs, char *args[]) {
 
@@ -15,13 +15,8 @@ shellcmd xsh_hello(int nargs, char *args[]) {
 	if (nargs == 2 && strncmp(args[1], "--help", 7) == 0) {
 		printf("Usage: %s <sring> \n\n", args[0]);
 		printf("Description:\n");
-		printf("\tDisplays the welcome string:\n");
+		printf("\tDisplays the welcome message with input string:\n");
 		printf("Hello <string>, Welcome to the world of Xinu!!\n");
-		//printf("\t-f\tforce a time server request to be sent\n");
-		//printf("\t-d\tset daylight savings time on\n");
-		//printf("\t-s\tset standard time (not daylight savings)\n");
-		//printf("\t-a\tset daylight savings to automatic\n");
-		printf("\t--help\tdisplay this help and exit\n");
 		return 0;
 	}
 
