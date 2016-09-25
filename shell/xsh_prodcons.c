@@ -4,6 +4,9 @@
 //Definition for global variable 'n'
 int n=0;
 
+//define two more golable variables for semaphores
+sid32 produced,consumed;
+
 /*Now global variable n will be on Heap so it is accessible all the processes i.e. consume and produce*/
 
 shellcmd xsh_prodcons(int nargs, char *args[])
@@ -12,6 +15,9 @@ shellcmd xsh_prodcons(int nargs, char *args[])
   //initialize count to default value.
   //It will be overwritten if supplied in argument in console.
   int count = 2000; 
+  //initialize semaphores
+  produced = semcreate(0); 
+  consumed = semcreate(1);
 
   //code to support --help switch
   if (nargs == 2 && strncmp(args[1], "--help", 7) == 0) 

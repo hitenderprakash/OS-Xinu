@@ -6,6 +6,8 @@ consumer(int count)
 {
   for(int i=0;i<=count;i++)
   {
+	  wait(produced);
 	  printf("\nConsumed:  %d",n);
+	  signal(consumed);
   }
 }
