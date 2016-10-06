@@ -5,6 +5,8 @@ typedef struct futent future;
 //Code which is executed by Consumer
 syscall future_get(future *f, int *value){
   
+  intmask mask;
+  mask=disable();
   pid32 pid=getpid();//getting PID
   if (f->state==FUTURE_EMPTY){//In case consumer is called before producer
 	  
@@ -17,6 +19,7 @@ syscall future_get(future *f, int *value){
   if (f->state==FUTURE_WAITING){
 
 	//code should not come here;
+	restore(mask);
 	return SYSERR;
   }
   
@@ -26,6 +29,7 @@ syscall future_get(future *f, int *value){
 	*value=*(f->value);	
 	f->state=FUTURE_EMPTY;		
     // Once the value is consudmed, we should free the future.
+	restore(mask);
 	return future_free(f);
   }
 

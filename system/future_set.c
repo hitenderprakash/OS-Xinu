@@ -4,9 +4,12 @@
 typedef struct futent future;
 //This is called by producer
 syscall future_set(future *f, int *value){
+  intmask mask;
+  mask=disable();
   if (f->state==FUTURE_VALID){
     //If the state is already VALID, should return SYSERR
 	printf("\nProducer Error: The value produced earlier has not been consumed yet");
+	restore(mask);
 	return SYSERR;
   }
 
@@ -15,6 +18,7 @@ syscall future_set(future *f, int *value){
 	*(f->value)=*value;
 	f->state=FUTURE_VALID;
     //since no process is waiting therefor no need to wake any process here. simply write the value and change the state
+    restore(mask);
     return OK;
   }
 
@@ -24,6 +28,7 @@ syscall future_set(future *f, int *value){
 	*(f->value)=*value;
 	f->state=FUTURE_VALID;
 	resume(f->pid);
+	restore(mask);
 	return OK;
   }
 

@@ -5,6 +5,8 @@ typedef struct futent future ;
 
 //creatng Future
 future* future_alloc(int future_flags){
+  intmask mask;
+  mask=disable();
   future* fu=getmem(sizeof(future));
   if (fu!=SYSERR){ //if memory is successfully allocated
     //initialize value with 0
@@ -18,6 +20,7 @@ future* future_alloc(int future_flags){
 	fu->pid=0;
   }
   //return the future reference. If memory was not allocated then SYSERR will be return
+  restore(mask);
   return fu;
 }
 
