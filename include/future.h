@@ -11,7 +11,7 @@
 #define FUTURE_SHARED		2
 #define FUTURE_QUEUE		3 
 
-//added to handle FUTURE SHARED and QUEUE
+//Added proc_queue to handle future_SHARED and future_QUEUE
 typedef struct proc_queue{
   pid32 pid;
   struct proc_queue *next;

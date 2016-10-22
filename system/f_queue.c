@@ -21,7 +21,7 @@ f_enqueue (pid32 pid, proc_queue *head){
     cur=cur->next;
   }
   cur->next=tempProc; 
-  printf("\nENQUEUED : %d",tempProc->pid);
+  //printf("\nENQUEUED : %d",tempProc->pid);
 }
 
 pid32 f_dequeue(proc_queue *head){
@@ -31,7 +31,7 @@ pid32 f_dequeue(proc_queue *head){
 	pid32 p=temp->pid;
 	head->next=temp->next;
 	freemem(temp,sizeof(proc_queue));
-	printf("\nreturning proc: %d",p);
+	//printf("\nreturning proc: %d",p);
 	return p;
   }
   //printf("\nEmpty");

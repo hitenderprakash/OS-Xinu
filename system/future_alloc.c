@@ -23,11 +23,16 @@ future* future_alloc(int future_flags){
 	fu->set_queue=0;
 	
 	//inititialize queue if required
-	if (future_flags==FUTURE_SHARED || future_flags==FUTURE_QUEUE){
+	if (future_flags==FUTURE_SHARED){
+	  fu->get_queue=init_proc_queue();
+	  //fu->set_queue=init_proc_queue();
+	  //no need to initialize set_queue, as it will not be used
+	}
+	if (future_flags==FUTURE_QUEUE){
 	  fu->get_queue=init_proc_queue();
 	  //printf("\n******: get Q ID: %d",fu->get_queue);
 	  fu->set_queue=init_proc_queue();
-	  //printf("\n******: get Q ID: %d",fu->set_queue);
+	  //initalize both set_queue and get_queue
 	}
 	
 
