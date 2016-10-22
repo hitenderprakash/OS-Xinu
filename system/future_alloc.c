@@ -18,6 +18,19 @@ future* future_alloc(int future_flags){
 	fu->state=FUTURE_EMPTY;
     //initialize the pid with 0. It will be overwritten by future_get
 	fu->pid=0;
+	//initialize default values of get and set queue
+	fu->get_queue=0;
+	fu->set_queue=0;
+	
+	//inititialize queue if required
+	if (future_flags==FUTURE_SHARED || future_flags==FUTURE_QUEUE){
+	  fu->get_queue=init_proc_queue();
+	  //printf("\n******: get Q ID: %d",fu->get_queue);
+	  fu->set_queue=init_proc_queue();
+	  //printf("\n******: get Q ID: %d",fu->set_queue);
+	}
+	
+
   }
   //return the future reference. If memory was not allocated then SYSERR will be return
   restore(mask);

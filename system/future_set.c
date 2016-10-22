@@ -14,7 +14,7 @@ syscall future_set(future *f, int *value){
   }
 
   if (f->state==FUTURE_EMPTY ){
-
+    printf("\nProducer produced the value: %d ",*value);
 	*(f->value)=*value;
 	f->state=FUTURE_VALID;
     //since no process is waiting therefor no need to wake any process here. simply write the value and change the state
@@ -23,11 +23,25 @@ syscall future_set(future *f, int *value){
   }
 
   if (f->state==FUTURE_WAITING){
-    
 	printf("\nProducer produced the value: %d ",*value);
 	*(f->value)=*value;
-	f->state=FUTURE_VALID;
-	resume(f->pid);
+	f->state=FUTURE_VALID;   
+	if (f->flag==FUTURE_EXCLUSIVE){
+	  resume(f->pid);
+	}
+	else if (f->flag==FUTURE_SHARED){
+	  //printf("\nUnfolding queue");
+	  //printf("\n IS EMPTY: %d",f_isempty(f->get_queue));
+	  //printf("\nresumed: %d",((f->get_queue)->next)->pid);
+	  //printf("\dequeued: %d",f_dequeue(f->get_queue));
+	  while(!(f_isempty(f->get_queue))){
+		pid32 p=((f->get_queue)->next)->pid;
+		printf("\nresumed: %d",p);
+		f_dequeue(f->get_queue);
+		resume(p);
+		//resume(f_dequeue(f->get_queue));
+	  }
+	}
 	restore(mask);
 	return OK;
   }
