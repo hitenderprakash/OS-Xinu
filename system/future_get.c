@@ -6,9 +6,9 @@ typedef struct futent future;
 syscall future_get(future *f, int *value){
   
   intmask mask;
-  mask=disable();
   pid32 pid=getpid();//getting PID
   if (f->state==FUTURE_EMPTY){//In case consumer is called before producer
+	mask=disable();
 	if(f->flag==FUTURE_EXCLUSIVE){
 	  f->pid=pid;
 	}
@@ -16,49 +16,44 @@ syscall future_get(future *f, int *value){
 	  f_enqueue(pid,f->get_queue);
 	}
 	f->state=FUTURE_WAITING;
-	//printf("\nSuspending");
+	restore(mask);//restore mask, do not hold it while waiting
 	suspend(pid);
-	//return OK; omitted the return here so that when consumer resumes it continue with consuming the value 
+	//DO NOT RETURN. Should Continue with consuming the value after resume 
   }
 
   if (f->state==FUTURE_WAITING){
-
+     mask=disable();
 	//code should not come here inn case of FUTURE_EXCLUSIVE;
 	if(f->flag==FUTURE_EXCLUSIVE){
 	  restore(mask);
 	  return SYSERR;		
 	}
 	else if(f->flag==FUTURE_SHARED){
-	  printf("\n Joining other in sleep");
 	  f_enqueue(pid,f->get_queue);
+	  restore(mask);
 	  suspend(pid);
-	  //restore(mask);
-	  //return OK;	DO NOT RETURN	
+	  //DO NOT RETURN	
 	}
 	else if(f->flag==FUTURE_QUEUE){
-	  //printf("\n Joining other in sleep");
 	  f_enqueue(pid,f->get_queue);
 	  if(!(f_isempty(f->set_queue))){
-		pid32 p=((f->set_queue)->next)->pid;
-		//printf("\nresumed setter: %d",p);
-		f_dequeue(f->set_queue);
-		resume(p);
-		//resume(f_dequeue(f->get_queue));
+		resume(f_dequeue(f->set_queue));
 	  }
+	  restore(mask);
 	  suspend(pid);
-	  //restore(mask);
-	  //return OK;	DO NOT RETURN	
+	  //DO NOT RETURN	
 	}
 	
   }
   
   //after resuming consumer should come here 
   if (f->state==FUTURE_VALID){	
+	mask=disable();
 	*value=*(f->value);
-	//printf("\nResumedwith val %d",*value);
 	
 	if(f->flag==FUTURE_EXCLUSIVE){	
 	  f->state=FUTURE_EMPTY;
+	  restore(mask);
 	  return future_free(f);		
 	  // Make empty as the only consumer has consumed value
 	}
@@ -70,6 +65,8 @@ syscall future_get(future *f, int *value){
 	    f->state=FUTURE_EMPTY;
 	    future_free(f);
 	  }		
+	  restore(mask);
+	  return OK;
 	}
 	else if (f->flag==FUTURE_QUEUE){
 	  if(!f_isempty(f->get_queue)){
@@ -81,9 +78,9 @@ syscall future_get(future *f, int *value){
 	  if(!f_isempty(f->set_queue)){
 	    resume(f_dequeue(f->set_queue));
 	  }
+	  restore(mask);
+	  return OK;
 	}
-	restore(mask);
-	return OK;
   }
 
 }

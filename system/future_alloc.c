@@ -11,26 +11,25 @@ future* future_alloc(int future_flags){
   if (fu!=SYSERR){ //if memory is successfully allocated
     //initialize value with 0
 	fu->value=0;
-    //initialize flag. We rely on the caller of function to provide exact flag
-	//for example FUTURE_EXCLUSIVE in assignment 4. 
+	
 	fu->flag=future_flags;
     //initialize the state to EMPTY
 	fu->state=FUTURE_EMPTY;
+	
     //initialize the pid with 0. It will be overwritten by future_get
 	fu->pid=0;
-	//initialize default values of get and set queue
+	
+	//initialize queues with NULL
 	fu->get_queue=0;
 	fu->set_queue=0;
 	
-	//inititialize queue if required
+	//inititialize queue properly if required
 	if (future_flags==FUTURE_SHARED){
 	  fu->get_queue=init_proc_queue();
-	  //fu->set_queue=init_proc_queue();
-	  //no need to initialize set_queue, as it will not be used
+	  //only get_queue is required
 	}
 	if (future_flags==FUTURE_QUEUE){
 	  fu->get_queue=init_proc_queue();
-	  //printf("\n******: get Q ID: %d",fu->get_queue);
 	  fu->set_queue=init_proc_queue();
 	  //initalize both set_queue and get_queue
 	}
