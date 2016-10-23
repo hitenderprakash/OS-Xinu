@@ -6,6 +6,9 @@ proc_queue* init_proc_queue(){
   head->next=0;
   head->pid=-1;
   return head;
+  //queue will always have a dummy inital node "head" once it as been initialized. We dont store the actual process on head
+  //if we store the process at head, and when it will be dequeued , we will loose the queue.
+  //any process who want to join the queue after that will not be successful and cause unwanted behavior.
 }
 
 int f_isempty(proc_queue *head){
