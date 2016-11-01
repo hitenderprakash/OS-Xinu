@@ -117,6 +117,8 @@ extern	syscall	getc(did32);
 /* in file getitem.c */
 extern	pid32	getfirst(qid16);
 
+pid32 getitem(pid32);
+
 /* in file getmem.c */
 extern	char	*getmem(uint32);
 
@@ -364,6 +366,11 @@ extern	syscall	ptsend(int32, umsg32);
 
 /* in file putc.c */
 extern	syscall	putc(did32, char);
+
+/* in file queue.c */
+
+pid32 dequeue(qid16);
+pid32 enqueue(pid32, qid16);
 
 /* in file ramclose.c */
 extern	devcall	ramclose(struct dentry *);
@@ -619,6 +626,7 @@ extern	syscall	yield(void);
 		      (((x)<< 8) & 0x00ff0000) | (((x)<<24) & 0xff000000) )
 
 
+#ifdef ARM_QEMU
 devcall loopbackInit(struct dentry *);
 devcall loopbackOpen(struct dentry *);
 devcall loopbackClose(struct dentry *);
@@ -628,5 +636,12 @@ devcall loopbackGetc(struct dentry *);
 devcall loopbackPutc(struct dentry *, char);
 devcall loopbackControl(struct dentry *, int, long, long);
 
-syscall kputc(uchar c, struct dentry *devptr);
+syscall kprintf(char *fmt, ...);
+#endif /* ARM_QEMU */
 
+#ifdef ARM_BBB
+/* Prototypes of I/O functions used throughout the kernel */
+syscall       kprintf(char *fmt, ...);
+syscall       kputc(byte);
+syscall       kgetc(void);
+#endif /* ARM_BBB */
