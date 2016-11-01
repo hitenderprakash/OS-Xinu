@@ -1,10 +1,6 @@
 #include <xinu.h>
-<<<<<<< HEAD
 #include <prodcons.h>
 #include <stdio.h>
-=======
-//#include <prodcons.h>
->>>>>>> upstream/master
 
 consumer(int count) 
 {

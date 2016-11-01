@@ -1,5 +1,4 @@
 #include <xinu.h>
-<<<<<<< HEAD
 #include <prodcons.h>
 #include <stdio.h>
 
@@ -12,9 +11,4 @@ producer(int count)
 		printf("\nProduced: %d",n);
 		signal(produced);
 	}
-=======
-//#include <prodcons.h>
-
-void producer(int count) {
->>>>>>> upstream/master
 }
