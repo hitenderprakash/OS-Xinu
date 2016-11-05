@@ -10,7 +10,7 @@ syscall future_set(future *f, int *value){
 	//in Case of Exclusive and Shared
     //If the state is already VALID, should return SYSERR
     if((f->flag==FUTURE_EXCLUSIVE)||(f->flag==FUTURE_SHARED)){
-	  printf("\nProducer Error: The value produced earlier has not been consumed yet");
+	  kprintf("\nProducer Error: The value produced earlier has not been consumed yet");
 	  restore(mask);
 	  return SYSERR;		
 	}
@@ -28,7 +28,7 @@ syscall future_set(future *f, int *value){
 
   if (f->state==FUTURE_EMPTY ){
 	mask=disable();
-    printf("\nProducer[pid:%d, Flag:%d] produced the value: %d ",getpid(),f->flag,*value);
+    kprintf("\nProducer[pid:%u, Flag:%u] produced the value: %u ",getpid(),f->flag,*value);
 	*(f->value)=*value;
 	f->state=FUTURE_VALID;
     //since no process is waiting therefor no need to wake any process here. simply write the value and change the state
@@ -38,7 +38,7 @@ syscall future_set(future *f, int *value){
 
   if (f->state==FUTURE_WAITING){
 	mask=disable();
-	printf("\nProducer[pid:%d, Flag:%d] produced the value: %d ",getpid(),f->flag,*value);
+	kprintf("\nProducer[pid:%u, Flag:%u] produced the value: %u ",getpid(),f->flag,*value);
 	*(f->value)=*value;
 	f->state=FUTURE_VALID;   
 	if (f->flag==FUTURE_EXCLUSIVE){

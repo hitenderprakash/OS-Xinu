@@ -10,7 +10,7 @@ future* future_alloc(int future_flags){
   future* fu=getmem(sizeof(future));
   if (fu!=SYSERR){ //if memory is successfully allocated
     //initialize value with 0
-	fu->value=0;
+	fu->value=getmem(sizeof(int));
 	
 	fu->flag=future_flags;
     //initialize the state to EMPTY

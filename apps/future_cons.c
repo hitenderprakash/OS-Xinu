@@ -12,10 +12,10 @@ uint future_cons(future *fut) {
   //when the last consumer returned after freeing the future.
   status = future_get(fut, &i);
   if (status < 1){
-    printf("\nfuture_get failed\n");
+    kprintf("\nfuture_get failed\n");
     return -1;
   }
-  printf("\nConsumer [PID:%d, Flag:%d] has consumed: %d ",getpid(),flag, i);//fut->flag can print garbage therefor using saved "flag"
+  kprintf("\nConsumer [PID:%u, Flag:%u] has consumed: %u ",getpid(),flag, i);//fut->flag can print garbage therefor using saved "flag"
   return OK;
 }
 

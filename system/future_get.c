@@ -54,7 +54,8 @@ syscall future_get(future *f, int *value){
 	if(f->flag==FUTURE_EXCLUSIVE){	
 	  f->state=FUTURE_EMPTY;
 	  restore(mask);
-	  return future_free(f);		
+	  future_free(f);	
+	  return OK;	
 	  // Make empty as the only consumer has consumed value
 	}
 	else if (f->flag==FUTURE_SHARED){
