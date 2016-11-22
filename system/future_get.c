@@ -54,7 +54,7 @@ syscall future_get(future *f, int *value){
 	if(f->flag==FUTURE_EXCLUSIVE){	
 	  f->state=FUTURE_EMPTY;
 	  restore(mask);
-	  future_free(f);	
+	  //future_free(f);	
 	  return OK;	
 	  // Make empty as the only consumer has consumed value
 	}
@@ -64,7 +64,7 @@ syscall future_get(future *f, int *value){
 	  //free the future memory
 	  if(f_isempty(f->get_queue)){
 	    f->state=FUTURE_EMPTY;
-	    future_free(f);
+	    //future_free(f);
 	  }		
 	  restore(mask);
 	  return OK;
