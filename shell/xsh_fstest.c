@@ -59,9 +59,11 @@ void testbitmask(void);
     buf2 = getmem(SIZE*sizeof(char));
     
     // Create test file
+    //fd = fs_create("Test_Filexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", O_CREAT);
     fd = fs_create("Test_File", O_CREAT);
 
     fd=fs_open("Test_File",O_RDWR);
+    //fd=fs_open("Test_File",O_RDWR);//to check if file is already opened
 
     // Fill buffer with random stuff
     for(i=0; i<SIZE; i++)
@@ -92,7 +94,7 @@ void testbitmask(void);
         goto clean_up;
     }
         
-    printf("\n\rContent of file %s",buf2);
+    printf("\n\rContent of file:\n %s",buf2);
     
     rval = fs_close(fd);
     if(rval != OK)
@@ -105,7 +107,7 @@ clean_up:
     freemem(buf2,SIZE);
     
 #else
-    printf("No filesystem support\n");
+    printf("\nNo filesystem support\n");
 #endif
 
     return OK;
