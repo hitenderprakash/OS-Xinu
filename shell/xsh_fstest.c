@@ -57,13 +57,10 @@ void testbitmask(void);
 
     buf1 = getmem(SIZE*sizeof(char));
     buf2 = getmem(SIZE*sizeof(char));
-    
-    // Create test file
-    //fd = fs_create("Test_Filexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", O_CREAT);
+
     fd = fs_create("Test_File", O_CREAT);
 
     fd=fs_open("Test_File",O_RDWR);
-    //fd=fs_open("Test_File",O_RDWR);//to check if file is already opened
 
     // Fill buffer with random stuff
     for(i=0; i<SIZE; i++)
