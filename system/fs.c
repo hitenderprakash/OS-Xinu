@@ -212,54 +212,13 @@ void fs_printfreemask(void) {
   }
   printf("\n");
 }
-/*
-int fs_create(char *filename, int mode){
-	int fd=next_open_fd; //save the current open id
-	if(fd !=0){
-		for (int i=0;i<=fd;i++){
-			//printf("\nExisting NAME: %s",oft[i].de->name);Z 
-			//printf("\nProvided NAME: %s",filename);
-			if(strcmp(oft[i].de->name,filename)==0){
-				printf("File name: %s already exists !!",filename);
-				return SYSERR;
-			}
-		}
-	}
-	if(fd>=NUM_FD){
-		printf("\nFileTable Full, No new file creation possible !");
-		return SYSERR;
-	}
-	if(fsd.inodes_used>=fsd.ninodes){
-		printf("\nAll inodes used, No new file can be created");
-		return SYSERR;
-	}
-	//check for filename length
-	if (strlen(filename) > FILENAMELEN){
-		printf("\nERROR: Filename bigger than 32 character not supported");
-		return SYSERR;
-	}
-	oft[fd].state=FSTATE_CLOSED;
-	oft[fd].de = getmem(sizeof(struct dirent));
-	strcpy(oft[fd].de->name,filename);
-	oft[fd].de->inode_num=fsd.inodes_used;
-	oft[fd].in.id=fsd.inodes_used;
-	oft[fd].in.device=0;
-	oft[fd].fileptr=0;
-	oft[fd].in.type=INODE_TYPE_FILE;
-	fs_put_inode_by_num(0,oft[fd].in.id, &oft[fd].in);	
-	next_open_fd++;
-	fsd.inodes_used++;
-	return fd;	
 
-}
-*/
-//jj
 int fs_create(char *filename, int mode)
 {
 	struct inode *in;
 	if(mode != O_CREAT)
 	{
-		printf("Error: Mode O_CREAT is required while creating file");
+		printf("Error: only O_CREAT mode is required while creating file");
 		return SYSERR;
 	}
 	
@@ -333,7 +292,7 @@ int fs_open(char *filename, int flags)
 					}
 						
     				fd = next_open_fd;
-                    printf("\n Success: File %s Opened", fsd.root_dir.entry[i].name);
+                    printf("\nSuccess: File %s opened", fsd.root_dir.entry[i].name);
                     break;
 					tempfd = (tempfd+1)%NUM_FD;
 				} while(tempfd == 0);
@@ -362,14 +321,14 @@ int fs_write(int fd, void *buf, int nbytes){
 	in.size = in.size - (in.size - oft[fd].fileptr);
 	blk = oft[fd].fileptr / dev0_blocksize;
     //blknum = oft[fd].in.blocks[blk];
-	//
+
 	for(int i=0;i<dev0_numblocks;i++){
 		if(fs_getmaskbit(i) == 0){
 			blknum=i;
 			oft[fd].in.blocks[blk]=blknum;
 		}
 	}
-	//
+
 	bytestowrite = nbytes;
 	while (bytestowrite > 0){
 		fs_setmaskbit(blknum);
@@ -383,7 +342,7 @@ int fs_write(int fd, void *buf, int nbytes){
 		}
 		if(bs_bwrite(dev0,blknum,offset,&buf[byteswritten],writebytes) == SYSERR)
 		{
-			kprintf("\nfs_write: Error not able to write in file");
+			printf("\nError: not able to write in file");
 			oft[fd].in.size = oft[fd].in.size + byteswritten;
 			return byteswritten;
 		}
