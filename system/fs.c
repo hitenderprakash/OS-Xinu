@@ -262,47 +262,40 @@ int fs_open(char *filename, int flags)
 		printf("\nERROR: Invalid Flag");
 		return SYSERR;
 	}
-	if(fsd.root_dir.numentries != 0){
-		if (fsd.root_dir.numentries > NUM_FD){
-			return SYSERR;
-        }
-
-		for(int i=0;i<fsd.root_dir.numentries;i++){
-			
-			if(strcmp(filename,fsd.root_dir.entry[i].name) == 0){
-				fileExistFlag=1;
-				for(int j = 0;j < NUM_FD; j++){
-					if(oft[fd].state == FSTATE_OPEN){
-						kprintf("\nFile already open");
-						return j;
-					}
-				}
-				//write filetable
-				oft[fd].state = FSTATE_OPEN; 
-				oft[fd].fileptr = 0;
-				oft[fd].flags = flags;
-				oft[fd].de = getmem(sizeof(struct dirent));
-				oft[fd].de->inode_num = fsd.root_dir.entry[i].inode_num;
-				strncpy(oft[fd].de->name,fsd.root_dir.entry[i].name,strlen(fsd.root_dir.entry[i].name));
-				fs_get_inode_by_num(0,oft[fd].de->inode_num,&oft[fd].in); 
-				int tempfd = 0;
-                do {
-					if(oft[tempfd].state == FSTATE_CLOSED){
-						next_open_fd = tempfd;
-					}
-						
-    				fd = next_open_fd;
-                    printf("\nSuccess: File %s opened", fsd.root_dir.entry[i].name);
-                    break;
-					tempfd = (tempfd+1)%NUM_FD;
-				} while(tempfd == 0);
-			}
-		}	
+	if(fsd.root_dir.numentries <= 0){
+		printf("\nERROR: File system empty");
+		return SYSERR;
 	}
+	if (fsd.root_dir.numentries > NUM_FD){
+		return SYSERR;
+	}
+	for(int i=0;i<fsd.root_dir.numentries;i++){
+		
+		if(strcmp(filename,fsd.root_dir.entry[i].name) == 0){
+			fileExistFlag=1;//i.e file exists
+			for(int j = 0;j < NUM_FD; j++){
+				if((oft[j].state == FSTATE_OPEN)&&(strcmp(filename,oft[j].de->name) == 0)){
+					kprintf("\nFile already open");
+					fd=j;
+					return fd;
+				}
+			}
+			//write filetable
+			oft[fd].state = FSTATE_OPEN; 
+			oft[fd].fileptr = 0;
+			oft[fd].flags = flags;
+			oft[fd].de = getmem(sizeof(struct dirent));
+			oft[fd].de->inode_num = fsd.root_dir.entry[i].inode_num;
+			strncpy(oft[fd].de->name,fsd.root_dir.entry[i].name,strlen(fsd.root_dir.entry[i].name));
+			fs_get_inode_by_num(0,oft[fd].de->inode_num,&oft[fd].in); 
+		}
+	}	
+	
 	if (fileExistFlag==0){
 		printf("\nERROR: File %s does not exist",filename);
 		return SYSERR;
 	}
+	printf("\nSuccess: File opened");
 	return fd;
 }
 
