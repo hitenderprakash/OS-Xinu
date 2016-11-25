@@ -218,12 +218,12 @@ int fs_create(char *filename, int mode)
 	struct inode *in;
 	if(mode != O_CREAT)
 	{
-		printf("Error: only O_CREAT mode is required while creating file");
+		kprintf("Error: only O_CREAT mode is required while creating file");
 		return SYSERR;
 	}
 	
 	if((fsd.root_dir.numentries > NUM_FD)|| (fsd.root_dir.numentries <0)){
-        printf("\nERROR: File System full, no new file can be created !");
+        kprintf("\nERROR: File System full, no new file can be created !");
         return SYSERR;
     }
 	else{
@@ -231,7 +231,7 @@ int fs_create(char *filename, int mode)
 		{
 			if(strcmp(filename,fsd.root_dir.entry[i].name) == 0)
 			{	
-				printf("\nERROR:File %s already exists!", fsd.root_dir.entry[i].name);
+				kprintf("\nERROR:File %s already exists!", fsd.root_dir.entry[i].name);
 				return SYSERR;
 			}
 		}
@@ -259,11 +259,11 @@ int fs_open(char *filename, int flags)
 	int fd = next_open_fd;
 	int fileExistFlag=0;
 	if(flags<0 || flags >2){
-		printf("\nERROR: Invalid Flag");
+		kprintf("\nERROR: Invalid Flag");
 		return SYSERR;
 	}
 	if(fsd.root_dir.numentries <= 0){
-		printf("\nERROR: File system empty");
+		kprintf("\nERROR: File system empty");
 		return SYSERR;
 	}
 	if (fsd.root_dir.numentries > NUM_FD){
@@ -292,7 +292,7 @@ int fs_open(char *filename, int flags)
 	}	
 	
 	if (fileExistFlag==0){
-		printf("\nERROR: File %s does not exist",filename);
+		kprintf("\nERROR: File %s does not exist",filename);
 		return SYSERR;
 	}
 	printf("\nSuccess: File opened");
@@ -301,15 +301,15 @@ int fs_open(char *filename, int flags)
 
 int fs_write(int fd, void *buf, int nbytes){
 	if(fd>NUM_FD || fd<0 ||fd >next_open_fd){
-		printf("\nERROR: Invalid file handle");
+		kprintf("\nERROR: Invalid file handle");
 		return SYSERR;
 	}
 	if(oft[fd].flags < 1 || oft[fd].flags > 2 || oft[fd].state!=FSTATE_OPEN){
-		printf("\nERROR: File is not opened for writing");
+		kprintf("\nERROR: File is not opened for writing");
 		return SYSERR;
 	}
 	if(nbytes <= 0){
-		printf("\nERROR: Number of bytes to write are invalid");
+		kprintf("\nERROR: Number of bytes to write are invalid");
 		return SYSERR;
 	}
 
@@ -339,7 +339,7 @@ int fs_write(int fd, void *buf, int nbytes){
 		}
 		if(bs_bwrite(dev0,blknum,offset,&buf[byteswritten],writebytes) == SYSERR)
 		{
-			printf("\nError: not able to write in file");
+			kprintf("\nError: not able to write in file");
 			oft[fd].in.size = oft[fd].in.size + byteswritten;
 			return byteswritten;
 		}
@@ -363,7 +363,7 @@ int fs_write(int fd, void *buf, int nbytes){
 
 int fs_close(int  fd){
 	if(oft[fd].state==FSTATE_CLOSED || fd <0){
-		printf("\nERROR: File already closed or file handle is invalid");
+		kprintf("\nERROR: File already closed or file handle is invalid");
 		return SYSERR;
 	}
 	fs_put_inode_by_num(0,oft[fd].in.id,&oft[fd].in);
@@ -381,11 +381,11 @@ int fs_read(int fd, void *buf, int nbytes)
 	}
 	if(oft[fd].state == FSTATE_CLOSED)
     {
-        printf("\nERROR: File is closed!\n");
+        kprintf("\nERROR: File is closed!\n");
         return SYSERR;
     }
 	if(nbytes<=0){
-		printf("\nERROR: Number of bytes to read are given 0");
+		kprintf("\nERROR: Number of bytes to read are given 0");
 		return SYSERR;
 	}
 
@@ -411,7 +411,7 @@ int fs_read(int fd, void *buf, int nbytes)
 			readbytes = dev0_blocksize - offset;
 		}		
 		if(bs_bread(dev0,blknum, offset, &buf[bytesread], readbytes) == SYSERR){
-			printf("\nERROR: Not able to read file!\n");
+			kprintf("\nERROR: Not able to read file!\n");
 			oft[fd].fileptr = oft[fd].fileptr + bytesread;
 			return bytesread;
 		}
@@ -430,7 +430,7 @@ int fs_seek(int fd, int offset){
 	fileptr = fileptr + offset;
 	if(fileptr > oft[fd].in.size || fileptr < 0 )
 	{
-		printf("\nERROR: fileptr out of range!");
+		kprintf("\nERROR: fileptr out of range!");
 		return SYSERR;
 	}
 	oft[fd].fileptr = fileptr;
