@@ -308,28 +308,32 @@ int fs_open(char *filename, int flags)
 
 int fs_write(int fd, void *buf, int nbytes){
 	if(fd>NUM_FD || fd<0 ||fd >next_open_fd){
-		printf("\nInvalid file handle");
+		printf("\nERROR: Invalid file handle");
 		return SYSERR;
 	}
-	else if(oft[fd].flags < 1 || oft[fd].flags > 2 || oft[fd].state!=FSTATE_OPEN){
+	if(oft[fd].flags < 1 || oft[fd].flags > 2 || oft[fd].state!=FSTATE_OPEN){
 		printf("\nERROR: File is not opened for writing");
 		return SYSERR;
 	}
-	int bytestowrite, byteswritten = 0, writebytes = 0;
-	int blk,blknum,offset;
+	if(nbytes <= 0){
+		printf("\nERROR: Number of bytes to write are invalid");
+		return SYSERR;
+	}
+
 	struct inode in = oft[fd].in;
 	in.size = in.size - (in.size - oft[fd].fileptr);
-	blk = oft[fd].fileptr / dev0_blocksize;
-    //blknum = oft[fd].in.blocks[blk];
-
+	int blk = oft[fd].fileptr / dev0_blocksize;
+    int blknum;
+	int offset;
 	for(int i=0;i<dev0_numblocks;i++){
 		if(fs_getmaskbit(i) == 0){
 			blknum=i;
 			oft[fd].in.blocks[blk]=blknum;
 		}
 	}
-
-	bytestowrite = nbytes;
+	int byteswritten = 0;
+	int writebytes = 0;
+	int bytestowrite = nbytes;
 	while (bytestowrite > 0){
 		fs_setmaskbit(blknum);
 		if(dev0_blocksize-offset > bytestowrite)
@@ -365,7 +369,7 @@ int fs_write(int fd, void *buf, int nbytes){
 }
 
 int fs_close(int  fd){
-	if(oft[fd].state==FSTATE_CLOSED || fd==-1){
+	if(oft[fd].state==FSTATE_CLOSED || fd <0){
 		printf("\nERROR: File already closed or file handle is invalid");
 		return SYSERR;
 	}
@@ -376,67 +380,64 @@ int fs_close(int  fd){
 }
 
 int fs_read(int fd, void *buf, int nbytes)
-{
-    int bytesread = 0, bytestoread = 0, numberOfreadbytes;
-	int block_index,block_num,offset;
-	block_index = oft[fd].fileptr / dev0_blocksize;
-	offset = oft[fd].fileptr % dev0_blocksize;
-	bytestoread = nbytes;
-	block_num = oft[fd].in.blocks[block_index];
-	
-        if(oft[fd].flags != O_RDONLY && oft[fd].flags != O_RDWR)
-        {
-                kprintf("\nERROR: File mode is not read!\n");
-                return SYSERR;
-        }
+{	
+	if(oft[fd].flags != O_RDONLY && oft[fd].flags != O_RDWR)
+	{
+		kprintf("\nERROR: File mode is not read!\n");
+		return SYSERR;
+	}
 	if(oft[fd].state == FSTATE_CLOSED)
-        {
-                printf("\nERROR: File is closed!\n");
-                return SYSERR;
-        }
+    {
+        printf("\nERROR: File is closed!\n");
+        return SYSERR;
+    }
+	if(nbytes<=0){
+		printf("\nERROR: Number of bytes to read are given 0");
+		return SYSERR;
+	}
+
+	int blk = oft[fd].fileptr / dev0_blocksize;
+	int offset = oft[fd].fileptr % dev0_blocksize;
+	int blknum = oft[fd].in.blocks[blk];
+	int bytestoread = nbytes;
+	int bytesread = 0;
+	int readbytes;
 	while(bytesread < nbytes)
 	{
 		if(oft[fd].fileptr >= oft[fd].in.size) {
 			return bytesread; 
-                }
-		if(block_num == -1)
-		{ 
+        }
+		if(blknum == -1){ 
 
 			return SYSERR;
 		}
-		if(dev0_blocksize - offset >  bytestoread)
-		{
-			numberOfreadbytes = bytestoread;
+		if(dev0_blocksize - offset >  bytestoread){
+			readbytes = bytestoread;
 		}	
-		else
-		{
-			numberOfreadbytes = dev0_blocksize - offset;
+		else{
+			readbytes = dev0_blocksize - offset;
 		}		
-		if(bs_bread(dev0,block_num, offset, &buf[bytesread], numberOfreadbytes) == SYSERR)
-		{
+		if(bs_bread(dev0,blknum, offset, &buf[bytesread], readbytes) == SYSERR){
 			printf("\nERROR: Not able to read file!\n");
-			oft[fd].fileptr += bytesread;
+			oft[fd].fileptr = oft[fd].fileptr + bytesread;
 			return bytesread;
 		}
-		bytesread += numberOfreadbytes;
-		oft[fd].fileptr += numberOfreadbytes;
-		bytestoread -= numberOfreadbytes;
-		block_index++;
-		block_num = oft[fd].in.blocks[block_index];
+		bytesread = bytesread + readbytes;
+		oft[fd].fileptr = oft[fd].fileptr + readbytes;
+		bytestoread = bytestoread - readbytes;
+		blk++;
+		blknum = oft[fd].in.blocks[blk];
 		offset = 0;
 	}
-
-        return bytesread;
-
+    return bytesread;
 }
 
 int fs_seek(int fd, int offset){
-	int fileptr;
-	fileptr = oft[fd].fileptr;
-	fileptr += offset;
+	int fileptr = oft[fd].fileptr;
+	fileptr = fileptr + offset;
 	if(fileptr > oft[fd].in.size || fileptr < 0 )
 	{
-		printf("\nFailed in seek seek!\n");
+		printf("\nERROR: fileptr out of range!");
 		return SYSERR;
 	}
 	oft[fd].fileptr = fileptr;
