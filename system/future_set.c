@@ -29,7 +29,12 @@ syscall future_set(future *f, int *value){
   if (f->state==FUTURE_EMPTY ){
 	mask=disable();
     kprintf("\nProducer[pid:%u, Flag:%u] produced the value: %u ",getpid(),f->flag,*value);
-	*(f->value)=*value;
+    if(futureSelectionFlag ==1){
+		*(f->value)=*value;
+	}
+	if(futureSelectionFlag ==2){
+		pack_send(slot,value);
+	}
 	f->state=FUTURE_VALID;
     //since no process is waiting therefor no need to wake any process here. simply write the value and change the state
     restore(mask);
@@ -39,7 +44,12 @@ syscall future_set(future *f, int *value){
   if (f->state==FUTURE_WAITING){
 	mask=disable();
 	kprintf("\nProducer[pid:%u, Flag:%u] produced the value: %u ",getpid(),f->flag,*value);
-	*(f->value)=*value;
+	if(futureSelectionFlag ==1){
+		*(f->value)=*value;
+	}
+	if(futureSelectionFlag ==2){
+		pack_send(slot,value);
+	}
 	f->state=FUTURE_VALID;   
 	if (f->flag==FUTURE_EXCLUSIVE){
 	  resume(f->pid);

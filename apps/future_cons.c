@@ -3,6 +3,35 @@
 
 typedef struct futent future;
 
+
+// Code to receive from udp packet
+
+int pack_recv(uint32 slot){
+	if(slot == SYSERR){
+		kprintf("\nError: No UDP slot");
+		return;
+	}
+	
+	int i=0;
+	
+	while(i<1)
+	{
+		char incoming_message [IMSG_LEN] = "";
+		int recv_status = udp_recv(slot, &incoming_message, IMSG_LEN, RCV_TIMEOUT);
+		if(recv_status == TIMEOUT)
+			kprintf("\nError: Timeout occured");
+		else if(recv_status == SYSERR)
+			kprintf("\nError in receiving message %d", recv_status);
+		else
+		{
+			kprintf("\nMessage received %s", incoming_message);
+			return atoi(incoming_message);
+		}
+		i++;	
+	}
+}
+////////////
+
 uint future_cons(future *fut) {
   int i, status;
   int flag=fut->flag;

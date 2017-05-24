@@ -11,7 +11,8 @@ int n=0;
 //define two more golable variables for semaphores
 sid32 produced,consumed;
 
-
+int32 slot=0;
+int futureSelectionFlag=0; //for network future it will be 2 and for simple future it will be 1
 shellcmd xsh_prodcons(int nargs, char *args[]){
   //initialize count to default value.
   //It will be overwritten if supplied in argument in console.
@@ -41,6 +42,7 @@ shellcmd xsh_prodcons(int nargs, char *args[]){
   if (nargs == 2 && strncmp(args[1], "-f", 3) == 0){
 	
     future *f_exclusive, *f_shared, *f_queue;
+    futureSelectionFlag =1;//use normal future
     
     f_exclusive = future_alloc(FUTURE_EXCLUSIVE);
     
@@ -67,6 +69,31 @@ shellcmd xsh_prodcons(int nargs, char *args[]){
 	resume( create(future_prod, 1024, 20, "fprod4", 1, f_queue) );
 	resume( create(future_prod, 1024, 20, "fprod5", 1, f_queue) );
 	resume( create(future_prod, 1024, 20, "fprod6", 1, f_queue) );
+  
+	return 0;
+  }
+  
+  if (nargs == 2 && strncmp(args[1], "-n", 3) == 0){
+	
+    future *f_exclusive ;// *f_shared, *f_queue;
+    futureSelectionFlag =2;//use network future
+    
+    f_exclusive = future_alloc(FUTURE_EXCLUSIVE);
+    
+    //f_shared = future_alloc(FUTURE_SHARED);
+    //f_queue = future_alloc(FUTURE_QUEUE);
+    
+    uint32 remoteIP;
+    char IPAddr[]="192.168.1.101";
+    dot2ip(IPAddr,&remoteIP);
+    slot=udp_register(remoteIP,7,7);
+    
+    //Test future_exclusive
+    resume( create(future_cons, 1024, 20, "fcons1", 1, f_exclusive) );
+	resume( create(future_prod, 1024, 20, "fprod1", 1, f_exclusive) );
+    
+    //Test future_shared	
+	//Test future_queue
   
 	return 0;
   }

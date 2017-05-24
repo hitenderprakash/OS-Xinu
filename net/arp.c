@@ -66,13 +66,22 @@ status	arp_resolve (
 	if (i < ARP_SIZ) {	/* Entry was found */
 
 		/* If entry is resolved - handle and return */
-
+        /*
 		if (arptr->arstate == AR_RESOLVED) {
 			memcpy(mac, arptr->arhaddr, ARP_HALEN);
 			restore(mask);
 			return OK;
 		}
-
+        */
+        
+         //my code
+		if (arptr->arstate == AR_RESOLVED && (clktime - arptr->recordTime) < 300) {
+			memcpy(mac, arptr->arhaddr, ARP_HALEN);
+			restore(mask);
+			return OK;
+		}
+        
+        
 		/* Entry is already pending -  return error because	*/
 		/*	only one process can be	waiting at a time	*/
 
@@ -95,6 +104,7 @@ status	arp_resolve (
 	arptr->arstate = AR_PENDING;
 	arptr->arpaddr = nxthop;
 	arptr->arpid = currpid;
+	arptr->recordTime=clktime;
 
 	/* Hand-craft an ARP Request packet */
 
@@ -298,6 +308,15 @@ void	arp_in (
 int32	arp_alloc ()
 {
 	int32	slot;			/* Slot in ARP cache		*/
+	
+	
+	/* Delete stale entries */
+
+	for (slot=0; slot < ARP_SIZ; slot++) {
+		if (arpcache[slot].arstate == AR_RESOLVED && (clktime-arpcache[slot].recordTime)>=300) {
+			arpcache[slot].arstate == AR_FREE;
+		}
+	}
 
 	/* Search for a free slot */
 

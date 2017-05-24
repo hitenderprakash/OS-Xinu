@@ -2,6 +2,7 @@
 #include "future.h"
 
 typedef struct futent future;
+
 //Code which is executed by Consumer
 syscall future_get(future *f, int *value){
   
@@ -49,7 +50,12 @@ syscall future_get(future *f, int *value){
   //after resuming consumer should come here 
   if (f->state==FUTURE_VALID){	
 	mask=disable();
-	*value=*(f->value);
+	if(futureSelectionFlag ==1){
+		*value=*(f->value);
+	}
+	if(futureSelectionFlag ==2){
+		*value=pack_recv(slot);
+	}
 	
 	if(f->flag==FUTURE_EXCLUSIVE){	
 	  f->state=FUTURE_EMPTY;

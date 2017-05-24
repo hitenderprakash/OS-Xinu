@@ -37,5 +37,7 @@ shellcmd xsh_hello(int nargs, char *args[]) {
 	}
 
 	printf("Hello %s, Welcome to the world of Xinu!!\n",args[1]);
+	//test clktime
+	printf("Time Now:  %d \n",clktime);
 	return 0;
 }

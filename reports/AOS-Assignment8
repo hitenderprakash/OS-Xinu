@@ -1,0 +1,22 @@
+Assignment 8:
+
+Part 1:
+We wrote a UDP client program "UDPLinuxClient.c"
+We run "udpeserver" on xinu and run the above program on Linux as ./UDPLinuxClient.out 192.168.1.101 7
+It sends the message to xinu and receive a reply
+
+
+Part2: Delete stale ARP Cache
+We changed the arpentry struct to add new variable "recordTime" which is assigned a clock alue when arp cache is written
+Whenever, arp_resolve is called, it checks if the resolved arp entries are stale (more than 5 minute life)
+arp_alloc before checks all the arp cache enteries and delete if any entry is old
+
+Part3:
+We modified the future program that now producer sends the value using udp messege and consumer receives it from there
+run program with "future -n" for uing network future and use "future -f" to run the old future
+
+Team members
+Hitender Prakash
+Dhaval Niphade
+
+Refereces: http://www.linuxhowtos.org/C_C++/socket.htm
